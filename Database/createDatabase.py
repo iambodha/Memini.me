@@ -48,8 +48,34 @@ def createTables():
         latino_hispanic_count INT
     );
     """
+    createFacesTable = """
+    CREATE TABLE IF NOT EXISTS faces (
+        uuid SERIAL PRIMARY KEY,
+        person_uuid INT,
+        image_uuid INT,
+        emotion_percentages JSONB,
+        dominant_emotion TEXT,
+        region JSONB,
+        face_confidence FLOAT,
+        age INT,
+        ethnic_groups_percentages JSONB,
+        dominant_ethnic_group TEXT
+    );
+    """
+    createPeopleTable = """
+    CREATE TABLE IF NOT EXISTS people (
+        uuid SERIAL PRIMARY KEY,
+        faces_list INT[],
+        images_list INT[],
+        average_emotion TEXT,
+        average_face_confidence FLOAT,
+        average_ethnic_group TEXT
+    );
+    """
 
     cur.execute(createImagesTable)
+    cur.execute(createFacesTable)
+    cur.execute(createPeopleTable)
 
     conn.commit()
     cur.close()

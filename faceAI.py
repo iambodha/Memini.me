@@ -23,6 +23,6 @@ def faceBox():
     display(image)
 
 def verifySamePerson():
-    print(DeepFace.verify(img1_path="RDJ.jpg", img2_path="RDJ2.jpg"))
+    print(DeepFace.verify(img1_path="RDJ.jpg", img2_path="RDJ2.jpg", detector_backend='retinaface'))
 
-faceAnalysis()
+verifySamePerson()

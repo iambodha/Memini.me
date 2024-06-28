@@ -41,3 +41,41 @@ def d3(i):
             return m
     except:
         return None
+
+
+def d4(p):
+    try:
+        if p:
+            q = DT.strptime(p, '%Y:%m:%d %H:%M:%S')
+            return q.strftime('%Y-%m-%d %H:%M:%S%z')
+    except:
+        return None
+
+def d5(r):
+    s = d3(r)
+    if s:
+        t = d4(s.get('DateTimeOriginal'))
+        u = [f"Make: {s.get('Make', 'N/A')}", f"Model: {s.get('Model', 'N/A')}", f"ExposureTime: {s.get('ExposureTime', 'N/A')}", f"FNumber: {s.get('FNumber', 'N/A')}", f"ISOSpeedRatings: {s.get('ISOSpeedRatings', 'N/A')}"]
+        v = []
+        if 'GPSInfo' in s:
+            w = s['GPSInfo']
+            x = w.get('GPSLatitude')
+            y = w.get('GPSLatitudeRef')
+            z = w.get('GPSLongitude')
+            aa = w.get('GPSLongitudeRef')
+            if x and z:
+                bb = x[0] + x[1]/60 + x[2]/3600
+                cc = z[0] + z[1]/60 + z[2]/3600
+                if y == 'S':
+                    bb = -bb
+                if aa == 'W':
+                    cc = -cc
+                v = [f"Latitude: {bb}", f"Longitude: {cc}"]
+        return t, u, v
+    return None, [], []
+
+def d6():
+    CS.execute("SELECT uuid FROM people;")
+    d = CS.fetchall()
+    return [e[0] for e in d] if d else None
+

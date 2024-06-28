@@ -15,10 +15,11 @@ def createTables():
 
     createImagesTable = """
     CREATE TABLE IF NOT EXISTS images (
-        uuid SERIAL PRIMARY KEY,
+        uuid INT PRIMARY KEY,
         date_time TIMESTAMPTZ,
         camera_details TEXT[],
         location FLOAT[],
+        image_path TEXT,
         person_tags_list TEXT[],
         faces_list INT[],
         male_count INT,
@@ -50,7 +51,7 @@ def createTables():
     """
     createFacesTable = """
     CREATE TABLE IF NOT EXISTS faces (
-        uuid SERIAL PRIMARY KEY,
+        uuid INT PRIMARY KEY,
         person_uuid INT,
         image_uuid INT,
         emotion_percentages JSONB,
@@ -64,7 +65,8 @@ def createTables():
     """
     createPeopleTable = """
     CREATE TABLE IF NOT EXISTS people (
-        uuid SERIAL PRIMARY KEY,
+        uuid INT PRIMARY KEY,
+        face_path TEXT,
         faces_list INT[],
         images_list INT[],
         average_emotion TEXT,

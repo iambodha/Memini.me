@@ -2,6 +2,7 @@ from deepface import DeepFace
 from PIL import Image, ImageDraw
 from transformers import BlipProcessor, BlipForConditionalGeneration
 import numpy as np
+import os
 
 def faceAnalysis(imagePath):
     image = Image.open(imagePath)
@@ -22,7 +23,6 @@ def imageCaptioning(imagePath):
 
 def cutFace(imagePath, outputPath, analysis):
     image = Image.open(imagePath)
-
     region = analysis['region']
     x, y, w, h = region['x'], region['y'], region['w'], region['h']
 

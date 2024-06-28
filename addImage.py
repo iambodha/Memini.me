@@ -79,3 +79,21 @@ def d6():
     d = CS.fetchall()
     return [e[0] for e in d] if d else None
 
+def d7(f, g, h):
+    CS.execute(SQ.SQL("UPDATE people SET faces_list = array_append(faces_list, %s), images_list = array_append(images_list, %s) WHERE uuid = %s"), (g, h, f))
+    CN.commit()
+
+def d8(i, j, k, l, m, n, o):
+    CS.execute("INSERT INTO people (uuid, face_path, faces_list, images_list, average_emotion, average_face_confidence, average_ethnic_group) VALUES (%s, %s, %s, %s, %s, %s, %s);", (i, j, k, l, m, n, o))
+    CN.commit()
+
+def d9(p, q, r, s):
+    CS.execute("INSERT INTO faces (uuid, person_uuid, image_uuid, emotion_percentages, dominant_emotion, region, face_confidence, age, ethnic_groups_percentages, dominant_ethnic_group) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (p, q, r, J.dumps(s['emotion']), s['dominant_emotion'], J.dumps(s['region']), s['face_confidence'], s['age'], J.dumps(s['race']), s['dominant_race']))
+    CN.commit()
+
+def d10(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, aa, bb, cc, dd, ee, ff, gg, hh):
+    CS.execute("INSERT INTO images (uuid, date_time, camera_details, location, image_path, person_tags_list, faces_list, male_count, female_count, average_age, average_confidence, dominant_emotion, angry_average, disgust_average, fear_average, happy_average, sad_average, surprise_average, neutral_average, angry_count, disgust_count, fear_count, happy_count, sad_count, surprise_count, neutral_count, asian_count, indian_count, black_count, white_count, middle_eastern_count, latino_hispanic_count) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, aa, bb, cc, dd, ee, ff, gg, hh))
+    CN.commit()
+
+
+

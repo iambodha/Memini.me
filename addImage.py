@@ -68,34 +68,54 @@ def formatDateTime(dateTimeStr):
         print(f"Error formatting datetime: {e}")
         return None
         
-def d5(r):
-    s = d3(r)
-    if s:
-        t = d4(s.get('DateTimeOriginal'))
-        u = [f"Make: {s.get('Make', 'N/A')}", f"Model: {s.get('Model', 'N/A')}", f"ExposureTime: {s.get('ExposureTime', 'N/A')}", f"FNumber: {s.get('FNumber', 'N/A')}", f"ISOSpeedRatings: {s.get('ISOSpeedRatings', 'N/A')}"]
-        v = []
-        if 'GPSInfo' in s:
-            w = s['GPSInfo']
-            x = w.get('GPSLatitude')
-            y = w.get('GPSLatitudeRef')
-            z = w.get('GPSLongitude')
-            aa = w.get('GPSLongitudeRef')
-            if x and z:
-                bb = x[0] + x[1]/60 + x[2]/3600
-                cc = z[0] + z[1]/60 + z[2]/3600
-                if y == 'S':
-                    bb = -bb
-                if aa == 'W':
-                    cc = -cc
-                v = [f"Latitude: {bb}", f"Longitude: {cc}"]
-        return t, u, v
-    return None, [], []
 
-def d6():
-    CS.execute("SELECT uuid FROM people;")
-    d = CS.fetchall()
-    return [e[0] for e in d] if d else None
+def extractImageMetadata(imagePath):
+    exifData = getExifData(imagePath)
+    if exifData is not None:
+        dateTime = exifData.get('DateTimeOriginal')
+        formattedDateTime = formatDateTime(dateTime)
+        
+        cameraDetails = [
+            f"Make: {exifData.get('Make', 'N/A')}",
+            f"Model: {exifData.get('Model', 'N/A')}",
+            f"ExposureTime: {exifData.get('ExposureTime', 'N/A')}",
+            f"FNumber: {exifData.get('FNumber', 'N/A')}",
+            f"ISOSpeedRatings: {exifData.get('ISOSpeedRatings', 'N/A')}",
+        ]
+        
+        location = []
+        if 'GPSInfo' in exifData:
+            gpsInfo = exifData['GPSInfo']
+            latitude = gpsInfo.get('GPSLatitude')
+            latitudeRef = gpsInfo.get('GPSLatitudeRef')
+            longitude = gpsInfo.get('GPSLongitude')
+            longitudeRef = gpsInfo.get('GPSLongitudeRef')
+            
+            if latitude and longitude:
+                latitudeDecimal = latitude[0] + latitude[1]/60 + latitude[2]/3600
+                longitudeDecimal = longitude[0] + longitude[1]/60 + longitude[2]/3600
+                if latitudeRef == 'S':
+                    latitudeDecimal = -latitudeDecimal
+                if longitudeRef == 'W':
+                    longitudeDecimal = -longitudeDecimal
+                location = [f"Latitude: {latitudeDecimal}", f"Longitude: {longitudeDecimal}"]
+        
+        return formattedDateTime, cameraDetails, location
+    else:
+        return None, [], []
 
+def getPeopleUUIDS():
+    query = "SELECT uuid FROM people;"
+    cursor.execute(query)
+    uuids = cursor.fetchall()
+    
+    uuidList = [uuid[0] for uuid in uuids]
+    
+    if not uuidList:
+        return None
+    else:
+        return uuidList
+        
 def d7(f, g, h):
     CS.execute(SQ.SQL("UPDATE people SET faces_list = array_append(faces_list, %s), images_list = array_append(images_list, %s) WHERE uuid = %s"), (g, h, f))
     CN.commit()

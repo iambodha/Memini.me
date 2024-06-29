@@ -42,7 +42,6 @@ def d3(i):
     except:
         return None
 
-
 def d4(p):
     try:
         if p:
@@ -159,4 +158,38 @@ def main():
             
             rc[an['dominant_race']] += 1
 
+        tf = len(ia)
+        aa = ta / tf if tf else None
+        ac = tc / tf if tf else None
 
+        de = max(ec, key=ec.get) if ec else None
+
+        aa1 = es['angry'] / tf if tf else None
+        da = es['disgust'] / tf if tf else None
+        fa = es['fear'] / tf if tf else None
+        ha = es['happy'] / tf if tf else None
+        sa = es['sad'] / tf if tf else None
+        su = es['surprise'] / tf if tf else None
+        na = es['neutral'] / tf if tf else None
+
+        ac1 = ec['angry']
+        dc = ec['disgust']
+        fc1 = ec['fear']
+        hc = ec['happy']
+        sc = ec['sad']
+        su1 = ec['surprise']
+        nc = ec['neutral']
+
+        as1 = rc['asian']
+        ic = rc['indian']
+        bc = rc['black']
+        wc = rc['white']
+        mc1 = rc['middle eastern']
+        lc = rc['latino hispanic']
+
+        S.move(ip, np)
+        
+        d10(ui, dt, cm, lc, np, pt, fl, mc, fc, aa, ac, de, aa1, da, fa, ha, sa, su, na, ac1, dc, fc1, hc, sc, su1, nc, as1, ic, bc, wc, mc1, lc)
+
+if __name__ == "__main__":
+    main()

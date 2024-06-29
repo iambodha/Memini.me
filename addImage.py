@@ -164,58 +164,100 @@ def addFacesTable(face_uuid, person_uuid, image_uuid,imageAnalysisData):
     cursor.execute(query, data)
     conn.commit()
     
-def d10(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, aa, bb, cc, dd, ee, ff, gg, hh):
-    CS.execute("INSERT INTO images (uuid, date_time, camera_details, location, image_path, person_tags_list, faces_list, male_count, female_count, average_age, average_confidence, dominant_emotion, angry_average, disgust_average, fear_average, happy_average, sad_average, surprise_average, neutral_average, angry_count, disgust_count, fear_count, happy_count, sad_count, surprise_count, neutral_count, asian_count, indian_count, black_count, white_count, middle_eastern_count, latino_hispanic_count) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, aa, bb, cc, dd, ee, ff, gg, hh))
-    CN.commit()
+def insertImageData(uuid, dateTime, cameraDetails, location, imagePath, 
+                    personTagsList, facesList, maleCount, femaleCount, 
+                    averageAge, averageConfidence, dominantEmotion,
+                    angryAverage, disgustAverage, fearAverage, happyAverage, 
+                    sadAverage, surpriseAverage, neutralAverage,
+                    angryCount, disgustCount, fearCount, happyCount, 
+                    sadCount, surpriseCount, neutralCount,
+                    asianCount, indianCount, blackCount, whiteCount, 
+                    middleEasternCount, latinoHispanicCount):
+    
+    query = """
+    INSERT INTO images (
+        uuid, date_time, camera_details, location, image_path, 
+        person_tags_list, faces_list, male_count, female_count, 
+        average_age, average_confidence, dominant_emotion,
+        angry_average, disgust_average, fear_average, happy_average, 
+        sad_average, surprise_average, neutral_average,
+        angry_count, disgust_count, fear_count, happy_count, 
+        sad_count, surprise_count, neutral_count,
+        asian_count, indian_count, black_count, white_count, 
+        middle_eastern_count, latino_hispanic_count
+    ) VALUES (
+        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 
+        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+    )
+    """
+    
+    data = (
+        uuid, dateTime, cameraDetails, location, imagePath, 
+        personTagsList, facesList, maleCount, femaleCount, 
+        averageAge, averageConfidence, dominantEmotion,
+        angryAverage, disgustAverage, fearAverage, happyAverage, 
+        sadAverage, surpriseAverage, neutralAverage,
+        angryCount, disgustCount, fearCount, happyCount, 
+        sadCount, surpriseCount, neutralCount,
+        asianCount, indianCount, blackCount, whiteCount, 
+        middleEasternCount, latinoHispanicCount
+    )
+
+    cursor.execute(query, data)
+    conn.commit()
 
 def main():
-    ni = d1("./Data/New/")
-    pl = []
-    if not ni:
+    directoryPath = "./Data/New/"
+    facesPath = "./Data/Faces/"
+    tempFacesPath = "./Data/TempFaces/"
+    savedImagesPath = "./Data/savedImages/"
+    newImagesList = getNewImages(directoryPath)
+    pendingPersonList = []
+    if not newImagesList:
         return
     
-    for img in ni:
-        ip = "./Data/New/" + img
-        ia = FA(ip)
-        ui = d2("images")
-        dt, cm, lc = d5(ip)
-        np = "./Data/savedImages/" + img
-        pt = []
-        fl = []
-        mc = 0
-        fc = 0
-        ta = 0
-        tc = 0
-        ec = {'angry': 0, 'disgust': 0, 'fear': 0, 'happy': 0, 'sad': 0, 'surprise': 0, 'neutral': 0}
-        es = {'angry': 0, 'disgust': 0, 'fear': 0, 'happy': 0, 'sad': 0, 'surprise': 0, 'neutral': 0}
-        rc = {'asian': 0, 'indian': 0, 'black': 0, 'white': 0, 'middle eastern': 0, 'latino hispanic': 0}
+    for newImage in newImagesList:
+        imagePath = directoryPath + newImage
+        imageAnalysisList = faceAnalysis(imagePath)
+        uuid = generateUUID("images")
+        dateTime, cameraDetails, location = extractImageMetadata(imagePath)
+        newImagePath = savedImagesPath + newImage
+        personTagsList = []
+        facesList = []
+        maleCount = 0
+        femaleCount = 0
+        totalAge = 0
+        totalConfidence = 0
+        emotionCounts = {'angry': 0, 'disgust': 0, 'fear': 0, 'happy': 0, 'sad': 0, 'surprise': 0, 'neutral': 0}
+        emotionSums = {'angry': 0, 'disgust': 0, 'fear': 0, 'happy': 0, 'sad': 0, 'surprise': 0, 'neutral': 0}
+        raceCounts = {'asian': 0, 'indian': 0, 'black': 0, 'white': 0, 'middle eastern': 0, 'latino hispanic': 0}
 
-        for an in ia:
-            pu = d2("people")
-            fu = d2("faces")
-            op = "./Data/TempFaces/" + str(pu) + ".jpg"
-            CF(ip, op, an)
-            plst = d6()
-            if plst:
-                for pr in plst:
-                    pp = "./Data/Faces/" + str(pr) + ".jpg"
-                    r = FV(op, pp)
-                    if r:
-                        S.move(op, pp)
-                        d7(pr, fu, ui)
-                        pl.append(pr)
-                        pt.append(pr)
-                        pu = pr
+        for imageAnalysis in imageAnalysisList:
+            people_uuid = generateUUID("people")
+            face_uuid = generateUUID("faces")
+            outputPath = tempFacesPath + str(people_uuid) + ".jpg"
+            cutFace(imagePath, outputPath, imageAnalysis)
+            peopleUUIDList = getPeopleUUIDS()
+            if peopleUUIDList:
+                for person in peopleUUIDList:
+                    personImagePath = facesPath + str(person) + ".jpg"
+                    result = faceVerification(outputPath, personImagePath)
+                    if result:
+                        shutil.move(outputPath, personImagePath)
+                        updatePeopleTable(person, face_uuid, uuid)
+                        pendingPersonList.append(person)
+                        personTagsList.append(person)
+                        people_uuid = person
                         break
-            if O.path.exists(op):
-                dp = "./Data/Faces/" + str(pu) + ".jpg"
-                S.move(op, dp)
-                d8(pu, dp, [fu], [ui], None, None, None)
-                pl.append(pu)
-                pt.append(pu)
+            if os.path.exists(outputPath):
+                destinationPath = facesPath + str(people_uuid) + ".jpg"
+                shutil.move(outputPath, destinationPath)
+                addPeopleTable(people_uuid, destinationPath, [face_uuid], [uuid], None, None, None)
+                pendingPersonList.append(people_uuid)
+                personTagsList.append(people_uuid)
 
-            d9(fu, pu, ui, an)
-            fl.append(fu)
+            addFacesTable(face_uuid, people_uuid, uuid, imageAnalysis)
+            facesList.append(face_uuid)
             
             if an['dominant_gender'] == 'Man':
                 mc += 1

@@ -1,55 +1,73 @@
-import os as O
-import shutil as S
-import psycopg2 as P
-from psycopg2 import sql as SQ
-from ImageAnalysis import faceAnalysis as FA, faceVerification as FV, imageCaptioning as IC, cutFace as CF
-from PIL import Image as I
-from PIL.ExifTags import TAGS as T, GPSTAGS as G
-from datetime import datetime as DT
-import json as J
+import os
+import shutil
+import psycopg2
+from psycopg2 import sql
+from ImageAnalysis import faceAnalysis, faceVerification, imageCaptioning, cutFace
+from PIL import Image
+from PIL.ExifTags import TAGS, GPSTAGS
+from datetime import datetime
+import json
 
-DBN = "Memini"
-DBU = "postgres"
-DBP = "postgres"
-DBH = "localhost"
-DBO = "5432"
+dbName = "Memini"
+dbUser = "postgres"
+dbPassword = "postgres"
+dbHost = "localhost"
+dbPort = "5432"
 
-CN = P.connect(dbname=DBN, user=DBU, password=DBP, host=DBH, port=DBO)
-CS = CN.cursor()
+conn = psycopg2.connect(
+    dbname=dbName, user=dbUser, password=dbPassword, host=dbHost, port=dbPort
+)
+cursor = conn.cursor()
 
-def d1(p):
+def getNewImages(directory):
+    original_directory = os.getcwd()
+    
     try:
-        O.chdir(p)
-        i = O.listdir()
-        return [j for j in i if O.path.isfile(j)]
+        os.chdir(directory)
+        Images = os.listdir()
+        newImages = [image for image in Images if os.path.isfile(image)]
     finally:
-        O.chdir("..")
+        os.chdir(original_directory)
+    
+    return newImages
 
-def d2(t):
-    CS.execute(f"SELECT COALESCE(MAX(COALESCE(uuid, 0)), 0) FROM {t}")
-    return CS.fetchone()[0] + 1
+def generateUUID(tableName):
+    query = f"SELECT COALESCE(MAX(COALESCE(uuid, 0)), 0) FROM {tableName}"
+    cursor.execute(query)
+    
+    max_uuid = cursor.fetchone()[0]
+    
+    return max_uuid + 1
 
-def d3(i):
+def getExifData(imagePath):
     try:
-        k = I.open(i)
-        l = k._getexif()
-        if l:
-            m = {}
-            for n, o in l.items():
-                n = T.get(n, n)
-                m[n] = o
-            return m
-    except:
-        return None
+        img = Image.open(imagePath)
+        exifData = img._getexif()
+        if exifData is not None:
+            exif = {}
+            for tag, value in exifData.items():
+                tagName = TAGS.get(tag, tag)
+                exif[tagName] = value
 
-def d4(p):
+            return exif
+        else:
+            return None
+    except Exception as e:
+        print(f"Error: {e}")
+        return None
+        
+def formatDateTime(dateTimeStr):
     try:
-        if p:
-            q = DT.strptime(p, '%Y:%m:%d %H:%M:%S')
-            return q.strftime('%Y-%m-%d %H:%M:%S%z')
-    except:
+        if dateTimeStr:
+            # Example format from EXIF data: '2024:06:26 14:30:00'
+            dt = datetime.strptime(dateTimeStr, '%Y:%m:%d %H:%M:%S')
+            return dt.strftime('%Y-%m-%d %H:%M:%S%z')
+        else:
+            return None
+    except Exception as e:
+        print(f"Error formatting datetime: {e}")
         return None
-
+        
 def d5(r):
     s = d3(r)
     if s:

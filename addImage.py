@@ -95,5 +95,68 @@ def d10(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, 
     CS.execute("INSERT INTO images (uuid, date_time, camera_details, location, image_path, person_tags_list, faces_list, male_count, female_count, average_age, average_confidence, dominant_emotion, angry_average, disgust_average, fear_average, happy_average, sad_average, surprise_average, neutral_average, angry_count, disgust_count, fear_count, happy_count, sad_count, surprise_count, neutral_count, asian_count, indian_count, black_count, white_count, middle_eastern_count, latino_hispanic_count) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, aa, bb, cc, dd, ee, ff, gg, hh))
     CN.commit()
 
+def main():
+    ni = d1("./Data/New/")
+    pl = []
+    if not ni:
+        return
+    
+    for img in ni:
+        ip = "./Data/New/" + img
+        ia = FA(ip)
+        ui = d2("images")
+        dt, cm, lc = d5(ip)
+        np = "./Data/savedImages/" + img
+        pt = []
+        fl = []
+        mc = 0
+        fc = 0
+        ta = 0
+        tc = 0
+        ec = {'angry': 0, 'disgust': 0, 'fear': 0, 'happy': 0, 'sad': 0, 'surprise': 0, 'neutral': 0}
+        es = {'angry': 0, 'disgust': 0, 'fear': 0, 'happy': 0, 'sad': 0, 'surprise': 0, 'neutral': 0}
+        rc = {'asian': 0, 'indian': 0, 'black': 0, 'white': 0, 'middle eastern': 0, 'latino hispanic': 0}
+
+        for an in ia:
+            pu = d2("people")
+            fu = d2("faces")
+            op = "./Data/TempFaces/" + str(pu) + ".jpg"
+            CF(ip, op, an)
+            plst = d6()
+            if plst:
+                for pr in plst:
+                    pp = "./Data/Faces/" + str(pr) + ".jpg"
+                    r = FV(op, pp)
+                    if r:
+                        S.move(op, pp)
+                        d7(pr, fu, ui)
+                        pl.append(pr)
+                        pt.append(pr)
+                        pu = pr
+                        break
+            if O.path.exists(op):
+                dp = "./Data/Faces/" + str(pu) + ".jpg"
+                S.move(op, dp)
+                d8(pu, dp, [fu], [ui], None, None, None)
+                pl.append(pu)
+                pt.append(pu)
+
+            d9(fu, pu, ui, an)
+            fl.append(fu)
+            
+            if an['dominant_gender'] == 'Man':
+                mc += 1
+            else:
+                fc += 1
+            
+            ta += an['age']
+            tc += an['face_confidence']
+            
+            for em, v in an['emotion'].items():
+                es[em] += v
+                if em == an['dominant_emotion']:
+                    ec[em] += 1
+            
+            rc[an['dominant_race']] += 1
 
 

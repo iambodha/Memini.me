@@ -171,7 +171,7 @@ def insertImageData(uuid, dateTime, cameraDetails, location, imagePath,
                     angryCount, disgustCount, fearCount, happyCount, 
                     sadCount, surpriseCount, neutralCount,
                     asianCount, indianCount, blackCount, whiteCount, 
-                    middleEasternCount, latinoHispanicCount):
+                    middleEasternCount, latinoHispanicCount, imageCaption):
     
     query = """
     INSERT INTO images (
@@ -183,10 +183,10 @@ def insertImageData(uuid, dateTime, cameraDetails, location, imagePath,
         angry_count, disgust_count, fear_count, happy_count, 
         sad_count, surprise_count, neutral_count,
         asian_count, indian_count, black_count, white_count, 
-        middle_eastern_count, latino_hispanic_count
+        middle_eastern_count, latino_hispanic_count, image_caption
     ) VALUES (
         %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 
-        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
     )
     """
     
@@ -199,7 +199,7 @@ def insertImageData(uuid, dateTime, cameraDetails, location, imagePath,
         angryCount, disgustCount, fearCount, happyCount, 
         sadCount, surpriseCount, neutralCount,
         asianCount, indianCount, blackCount, whiteCount, 
-        middleEasternCount, latinoHispanicCount
+        middleEasternCount, latinoHispanicCount, imageCaption
     )
 
     cursor.execute(query, data)
@@ -302,9 +302,11 @@ def main():
         middleEasternCount = raceCounts['middle eastern']
         latinoHispanicCount = raceCounts['latino hispanic']
 
+        imageCaption = imageCaptioning(imagePath)
+
         shutil.move(imagePath, newImagePath)
         
-        insertImageData(uuid, dateTime, cameraDetails, location, newImagePath, personTagsList, facesList, maleCount, femaleCount, averageAge, averageConfidence, dominantEmotion,angryAverage, disgustAverage, fearAverage, happyAverage, sadAverage, surpriseAverage, neutralAverage,angryCount, disgustCount, fearCount, happyCount, sadCount, surpriseCount, neutralCount,asianCount, indianCount, blackCount, whiteCount, middleEasternCount, latinoHispanicCount)
+        insertImageData(uuid, dateTime, cameraDetails, location, newImagePath, personTagsList, facesList, maleCount, femaleCount, averageAge, averageConfidence, dominantEmotion,angryAverage, disgustAverage, fearAverage, happyAverage, sadAverage, surpriseAverage, neutralAverage,angryCount, disgustCount, fearCount, happyCount, sadCount, surpriseCount, neutralCount,asianCount, indianCount, blackCount, whiteCount, middleEasternCount, latinoHispanicCount, imageCaption)
 
 if __name__ == "__main__":
     main()

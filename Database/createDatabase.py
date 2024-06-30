@@ -47,6 +47,7 @@ def createTables():
         white_count INT,
         middle_eastern_count INT,
         latino_hispanic_count INT
+        image_caption TEXT,
     );
     """
     createFacesTable = """

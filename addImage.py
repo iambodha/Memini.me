@@ -67,7 +67,6 @@ def formatDateTime(dateTimeStr):
     except Exception as e:
         print(f"Error formatting datetime: {e}")
         return None
-        
 
 def extractImageMetadata(imagePath):
     exifData = getExifData(imagePath)
@@ -163,7 +162,7 @@ def addFacesTable(face_uuid, person_uuid, image_uuid,imageAnalysisData):
 
     cursor.execute(query, data)
     conn.commit()
-    
+
 def insertImageData(uuid, dateTime, cameraDetails, location, imagePath, 
                     personTagsList, facesList, maleCount, femaleCount, 
                     averageAge, averageConfidence, dominantEmotion,
@@ -259,53 +258,53 @@ def main():
             addFacesTable(face_uuid, people_uuid, uuid, imageAnalysis)
             facesList.append(face_uuid)
             
-            if an['dominant_gender'] == 'Man':
-                mc += 1
+            if imageAnalysis['dominant_gender'] == 'Man':
+                maleCount += 1
             else:
-                fc += 1
+                femaleCount += 1
             
-            ta += an['age']
-            tc += an['face_confidence']
+            totalAge += imageAnalysis['age']
+            totalConfidence += imageAnalysis['face_confidence']
             
-            for em, v in an['emotion'].items():
-                es[em] += v
-                if em == an['dominant_emotion']:
-                    ec[em] += 1
+            for emotion, value in imageAnalysis['emotion'].items():
+                emotionSums[emotion] += value
+                if emotion == imageAnalysis['dominant_emotion']:
+                    emotionCounts[emotion] += 1
             
-            rc[an['dominant_race']] += 1
+            raceCounts[imageAnalysis['dominant_race']] += 1
 
-        tf = len(ia)
-        aa = ta / tf if tf else None
-        ac = tc / tf if tf else None
+        totalFaces = len(imageAnalysisList)
+        averageAge = totalAge / totalFaces if totalFaces > 0 else None
+        averageConfidence = totalConfidence / totalFaces if totalFaces > 0 else None
 
-        de = max(ec, key=ec.get) if ec else None
+        dominantEmotion = max(emotionCounts, key=emotionCounts.get) if emotionCounts else None
 
-        aa1 = es['angry'] / tf if tf else None
-        da = es['disgust'] / tf if tf else None
-        fa = es['fear'] / tf if tf else None
-        ha = es['happy'] / tf if tf else None
-        sa = es['sad'] / tf if tf else None
-        su = es['surprise'] / tf if tf else None
-        na = es['neutral'] / tf if tf else None
+        angryAverage = emotionSums['angry'] / totalFaces if totalFaces > 0 else None
+        disgustAverage = emotionSums['disgust'] / totalFaces if totalFaces > 0 else None
+        fearAverage = emotionSums['fear'] / totalFaces if totalFaces > 0 else None
+        happyAverage = emotionSums['happy'] / totalFaces if totalFaces > 0 else None
+        sadAverage = emotionSums['sad'] / totalFaces if totalFaces > 0 else None
+        surpriseAverage = emotionSums['surprise'] / totalFaces if totalFaces > 0 else None
+        neutralAverage = emotionSums['neutral'] / totalFaces if totalFaces > 0 else None
 
-        ac1 = ec['angry']
-        dc = ec['disgust']
-        fc1 = ec['fear']
-        hc = ec['happy']
-        sc = ec['sad']
-        su1 = ec['surprise']
-        nc = ec['neutral']
+        angryCount = emotionCounts['angry']
+        disgustCount = emotionCounts['disgust']
+        fearCount = emotionCounts['fear']
+        happyCount = emotionCounts['happy']
+        sadCount = emotionCounts['sad']
+        surpriseCount = emotionCounts['surprise']
+        neutralCount = emotionCounts['neutral']
 
-        as1 = rc['asian']
-        ic = rc['indian']
-        bc = rc['black']
-        wc = rc['white']
-        mc1 = rc['middle eastern']
-        lc = rc['latino hispanic']
+        asianCount = raceCounts['asian']
+        indianCount = raceCounts['indian']
+        blackCount = raceCounts['black']
+        whiteCount = raceCounts['white']
+        middleEasternCount = raceCounts['middle eastern']
+        latinoHispanicCount = raceCounts['latino hispanic']
 
-        S.move(ip, np)
+        shutil.move(imagePath, newImagePath)
         
-        d10(ui, dt, cm, lc, np, pt, fl, mc, fc, aa, ac, de, aa1, da, fa, ha, sa, su, na, ac1, dc, fc1, hc, sc, su1, nc, as1, ic, bc, wc, mc1, lc)
+        insertImageData(uuid, dateTime, cameraDetails, location, newImagePath, personTagsList, facesList, maleCount, femaleCount, averageAge, averageConfidence, dominantEmotion,angryAverage, disgustAverage, fearAverage, happyAverage, sadAverage, surpriseAverage, neutralAverage,angryCount, disgustCount, fearCount, happyCount, sadCount, surpriseCount, neutralCount,asianCount, indianCount, blackCount, whiteCount, middleEasternCount, latinoHispanicCount)
 
 if __name__ == "__main__":
     main()
